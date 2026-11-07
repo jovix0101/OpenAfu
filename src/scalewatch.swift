@@ -2,7 +2,7 @@ import Cocoa
 import CoreBluetooth
 
 // scalewatch: simultaneously (a) scan advertisements from the target device and
-// print its FE95 service-data frames, and (b) connect and subscribe to every
+// print its service-data frames, and (b) connect and subscribe to every
 // notify characteristic, printing notifications. Use while stepping on the scale.
 //
 // usage: scalewatch <name-substring> [seconds]
@@ -19,7 +19,7 @@ func emit(_ s: String) {
 }
 func hex(_ d: Data) -> String { d.map { String(format: "%02x", $0) }.joined(separator: " ") }
 
-let target = (CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "mijia").lowercased()
+let target = (CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "afu-wl").lowercased()
 let seconds = CommandLine.arguments.count > 2 ? (Double(CommandLine.arguments[2]) ?? 300) : 300
 
 final class W: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {

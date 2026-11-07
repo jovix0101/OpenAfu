@@ -56,7 +56,6 @@ ICWorkerManager.java:768-777  getNormalWorkerNameByScanModel
 ```
 
 本机 `0x27` → Connect 模式、FatScale、**deviceSubType 7** → 27 协议。
-`ICConfigManager` 里还有一张 MiBeacon 产品表，但只登记了一个 `productId = 14623 (0x391F)`；`ICDeviceManager.java:2439-2455` 读 `serviceDatas["FE95"]` 取 productId 后 `getMIDeviceByProductId(...)`，查不到就 `return null`。这解释了为什么旁边那台小米秤（productId `0x30D9`）永远不会被阿福认出来。
 
 ## 4. 连接之后 App 写了什么
 
@@ -111,20 +110,11 @@ HealthIndicatorDTOPB b(long j, double d, double d2, int i, List list)
 | 想找的东西 | 结论 |
 | --- | --- |
 | App 私有目录 | `run-as com.antgroup.aijk.android` → `run-as: package not debuggable`；未 root 读不到 `/data/data/…` |
-| 外部数据目录 `/sdcard/Android/data/com.antgroup.aijk.android/files` | 只有支付宝多媒体缓存、`nebulaH5App`、`MobileAiX`、emoji、模型文件，**没有 `.db/.sqlite/.json`** —— 体重记录不在本地明文文件里 |
+| 外部数据目录 `/sdcard/Android/data/com.antgroup.aijk.android/files` | 只有支付宝多媒体缓存、`nebulaH5App`、`MobileAiX`、emoji、模型文件，体重记录不在本地明文文件里 |
 | icomon 日志 | `ICLoggerHandler.java:22`：`BASE_PATH="/icomon/"`、`DISK_CACHE_PATH="/dmlogs"`、`LOG_PATH="/cache"`，写到 `getFilesDir()` 私有目录 + 委托钩子 |
 | AFU 自研栈日志 | `AFULoggerHandler.Init(Context)` → `getFilesDir() + "/afu/afublesdklogcache"`，同样私有 |
 | logcat | 全 APK 里只有 `com/afu/wearable/sdk/logging/AfuFirmwareFrameLogger.java` 用 `android.util.Log` → **logcat 里不会有秤的数据帧**，别在这儿等 |
 | btsnoop / HCI 日志 | `settings put global bluetooth_hci_log 1` 能打开，但 `/data/misc/bluetooth/logs` 非 root 读不到。bugreport 里能拿到 `bluetooth_*.log` 文本日志，但 `btsnoop_hci.log` 不在其中 |
 | Health Connect | 手机上装了 `com.android.healthconnect.controller`，但没有对应的 ContentProvider |
 
-**取证路线**（都试过）：`adb bugreport` → 解压出 158 MB 的系统日志 → 在 `DUMP OF SERVICE bluetooth_manager` 段看 `GATT Client Map` 的 `AppRecord`（appName / 起止时间 / reason）与 `BluetoothRemoteDevices` 的 `[Packages]` 归属。靠这个确认了"上秤那一刻确实是阿福在注册 GATT client，而且连的是秤而不是别的设备"。
-
-## 7. 一个容易误判的现场
-
-同一间屋子里能同时扫到两台秤：
-
-- 目标：`AFU-WL-TZ-A1`，`svc=[FFB0,1530]`，`sdata(27AC)`。
-- 干扰项：一台 `Mijia Scale S400`，`sdata(FE95) = 10 59 d9 30 <counter> …`，FrameControl `0x5910`、productId `0x30D9`、**无 Object 字段**（广播里没有体重），Frame counter 半小时才从 `08` 变到 `0a`，其余字节不变。
-
-一开始误把 S400 当成目标，围着 MiBeacon / bindkey 查了很久（开源社区对 S400 的连接模式也卡在 auth v2 需要小米后台签名）。后来用户一句"这是阿里的，没绑过米家，数据进蚂蚁阿福"才把方向掰回来。**逆向前先确认设备身份，比读一百个类有用。**
+**取证路线**：`adb bugreport` → 解压出 158 MB 的系统日志 → 在 `DUMP OF SERVICE bluetooth_manager` 段看 `GATT Client Map` 的 `AppRecord`（appName / 起止时间 / reason）与 `BluetoothRemoteDevices` 的 `[Packages]` 归属。靠这个确认了上秤那一刻确实是阿福在注册 GATT client。

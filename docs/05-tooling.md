@@ -60,7 +60,7 @@ open -n ./BLEBridge.app --args 30                  # 必须用 open 启动，不
 
 `open` 启动的进程**stdout 会被丢弃**，所以工具一律把日志写到文件（环境变量 `BLE_OUT`，默认 `/tmp/xxx.out`），再 `tail -f` 看。
 
-早期实验里发现"新建一个 bundle 完全收不到 CoreBluetooth 回调"，于是把二进制塞进一个**已经拿到过蓝牙授权的 `.app`** 里再重签，就正常了。后来在打包成正式 App 时验证：只要 Info.plist 里两个 usage string 齐全、bundle 结构完整、ad-hoc 签名，新 bundle 也能正常回调（`dev.scalebar.app` 就是这么工作的）。所以结论是：**Info.plist + 签名 + `open -n` 三者缺一不可**，"复用授权宿主"只是当年没配全 Info.plist 时的绕路。
+**结论**：Info.plist 里两个 usage string 齐全、bundle 结构完整、ad-hoc 签名，再用 `open -n` 启动，CoreBluetooth 回调才会正常触发（`dev.scalebar.app` 就是这么工作的）。
 
 ### 2.3 Swift delegate 的静默坑
 
@@ -74,7 +74,7 @@ func peripheral(_ p: CBPeripheral, didDiscoverCharacteristicsFor s: CBService, e
 func peripheral(_ p: CBPeripheral, didUpdateValueFor ch: CBCharacteristic, error: Error?) {}
 ```
 
-这个坑表现为"连上了、服务也发现了，但一帧通知都没有"，非常容易误判成秤不说话。
+这个坑表现为"连上了、服务也发现了，但一帧通知都没有"；检查 delegate 方法签名即可定位。
 
 ### 2.4 其他
 
@@ -91,7 +91,7 @@ func peripheral(_ p: CBPeripheral, didUpdateValueFor ch: CBCharacteristic, error
 | `advlog.swift` | 被动高频扫，载荷变化才打一行，带毫秒时间戳；**从不连接** | `/tmp/advlog.out` |
 | `blegatt.swift` | 按名字子串连接 → 枚举整棵 GATT → 订阅所有 notify | `/tmp/blegatt.out` |
 | `scalewatch.swift` | 同时扫广播变化 + 连接订阅 | `/tmp/scalewatch.out` |
-| `afuprobe.swift` | 扫全量广播，命中 `AFU-WL*` / FC50 / 指定 productId 才连接 | `/tmp/afuprobe.out` |
+| `afuprobe.swift` | 扫全量广播，命中 `AFU-WL*` 名字或候选 service data 才连接 | `/tmp/afuprobe.out` |
 | `afuscale.swift` | **完整参考实现**：连接 + 写时间 / 用户信息 / 历史确认帧 + 解 `0xD5/D6/D8` + 算体成分。个人资料走 `AFU_*` 环境变量 | `/tmp/afuscale.out` |
 | `scan.py` | bleak 版扫描，留作"为什么不能这么干"的对照 | stdout |
 

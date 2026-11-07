@@ -2,7 +2,7 @@
 
 这些是调研期间写的**一次性探针**，不是产品代码。产品化实现在独立仓库 [`jovix0101/scalebar`](https://github.com/jovix0101/scalebar)。
 
-与根目录那些早期脚本的区别：这里的版本**不含任何真实设备 UUID / 个人资料**。`afuscale.swift` 的所有人设与设备标识都从环境变量读，默认值是合成演示值（175 cm / 42 岁 / 男 / 78.40 kg / 占位 UUID）。
+`src/` 里的工具使用占位设备 UUID 与合成人设。`afuscale.swift` 的所有人设与设备标识都从环境变量读，默认值是合成演示值（175 cm / 42 岁 / 男 / 78.40 kg / 占位 UUID）。
 
 ## 通用构建与运行
 
@@ -39,12 +39,12 @@ tail -f /tmp/blescan.out
 | 文件 | 作用 | 参数 | 默认输出 |
 | --- | --- | --- | --- |
 | `blescan.swift` | 扫一圈，打印每台设备的 `name / id / rssi / svc / sdata(UUID)=hex / mfr=hex` | 秒数 | `/tmp/blescan.out` |
-| `advlog.swift` | **被动**高频扫描（`AllowDuplicatesKey`），只在广播载荷变化时打一行，带毫秒时间戳，**从不连接** | `"Mijia Scale"` 之类的名字子串或 `all`、秒数 | `/tmp/advlog.out` |
+| `advlog.swift` | **被动**高频扫描（`AllowDuplicatesKey`），只在广播载荷变化时打一行，带毫秒时间戳，**从不连接** | `"AFU-WL"` 之类的名字子串或 `all`、秒数 | `/tmp/advlog.out` |
 | `blegatt.swift` | 按名字连接 → 枚举整棵 GATT → 给所有 notify 特征订阅，打印每帧 hex | 名字子串、秒数 | `/tmp/blegatt.out` |
 | `scalewatch.swift` | 同时做「广播变化」+「连接订阅」两件事 | 名字子串、秒数 | `/tmp/scalewatch.out` |
-| `afuprobe.swift` | 扫全量广播，命中 `AFU-WL*` / FC50 service data / 指定 FE95 productId 才连接并订阅 | 秒数、`scanOnly` 可选 | `/tmp/afuprobe.out` |
+| `afuprobe.swift` | 扫全量广播，命中 `AFU-WL*` 名字或候选 service data 才连接并订阅 | 秒数、`scanOnly` 可选 | `/tmp/afuprobe.out` |
 | `afuscale.swift` | **完整参考实现**：连接 → 读设备信息 → 订阅 `FFB2` → 写时间 / 用户信息 / 历史确认帧 → 解 `0xD5/0xD6/0xD8/0xDF` → 算全套体成分 | 秒数、`connect-only` / `with-writes` / `fix` | `/tmp/afuscale.out` |
-| `scan.py` | bleak 版扫描。在 macOS 上会因 Info.plist 缺 usage string 直接 SIGABRT —— **留作反面教材**，别用来干活 | — | stdout |
+| `scan.py` | bleak 版扫描；macOS 上需要 Info.plist usage string，日常用 Swift 版工具 | — | stdout |
 
 ## `afuscale.swift` 的环境变量
 

@@ -40,10 +40,8 @@ Service data under UUID `27AC`: `a1 c7 25 00 5c d0 01`.
 `ICWorkerManager.getNormalWorkerNameByScanModel` — subtype 7/9/10 → `ICWeightScale27Worker`,
 8/11/12 → `ICWeightScaleV3Worker`. This scale is subtype 7.
 
-Advertised services are `FFB0` + `1530`. There is **no FC50 service data** — the AFU
-`0000FC50` protocol belongs to a different device family and this scale never emits it.
-Its advertisement carries **no weight**: the payload is identical on every packet,
-before and during a measurement.
+Advertised services are `FFB0` + `1530`. The advertisement carries **no weight**:
+the payload is identical on every packet, before and during a measurement.
 
 ## Frames — 20 bytes, fixed
 

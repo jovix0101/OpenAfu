@@ -48,9 +48,9 @@
 - 产品化 App 的数据：`~/Library/Application Support/ScaleBar/scaledata.sqlite`（SQLite，应用自管；另有 `scalebar.log`）。它**不在本仓库里**，也不随仓库分发。
 - 本机的原始抓包 / 截图 / bugreport / APK 仍在原目录，被 `.gitignore` 排除，方便以后复核，但不会 `push` 出去。
 
-## 已经做过的清理
+## 当前状态
 
-- 早期曾把 skill 装到全局并软链到其他 agent（`~/.pi/agent/skills/`、`~/.codex/skills/`），已按用户要求**全部删除**，只保留项目内的 `.agents/skills/afu-wl-scale/`（pi 会自动发现项目级 skill）。
+- 项目内 skill 位于 `.agents/skills/afu-wl-scale/`，pi 会自动发现项目级 skill。
 - 公开 / 私有仓库的 README 截图用 `SCALEBAR_DB=/tmp/demo_scalebar.sqlite` 造的临时演示库生成，生成前把真实数据目录整体挪走、生成后恢复；截图里不含任何真实记录。
 - 两个仓库都不包含第三方 APK、整机 bugreport、设备 MAC / UUID、姓名、真实体重曲线。
 

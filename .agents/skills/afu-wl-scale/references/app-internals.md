@@ -9,9 +9,7 @@ Verified on Android 17 / OnePlus PKX110, app 1.1.78.2100 (versionCode 2761).
 | icomon (伊康) | `cn.icomon.icdevicemanager` — `@MpaasClassInfo(BundleName="com-antgroup-aijk-android-product_wellandbodyfatscale")` | `FFB0` | **this scale** |
 | AFU hardware SDK | `com.antgroup.aijk.android.aijk_hardware_sdk` + `com.afu.afudevicemanager` | `FC50` | other AFU devices |
 
-The scale is 沃莱 (Welland) hardware, so it goes through icomon. Do not chase `FC50` for it —
-that path never fires (its scan gate `x8.java:86` logs
-`"scan ignored, no valid AFU 0xFC50 service data, ..."`).
+The scale is 沃莱 (Welland) hardware, so its data path goes through icomon (`FFB0`).
 
 ## Key app facts
 
@@ -24,26 +22,17 @@ that path never fires (its scan gate `x8.java:86` logs
   disabled, and why re-writing the frame (protocol.md) restores it.
 - Body fat is computed **server-side** (`ICAlgorithmManager.calc` is a stub, `aq/wlbfs/*`
   only uploads). No local formula exists to reuse — see body-model.md.
-- The app registers **one** MiBeacon product id, `14623` (0x391F), via
-  `AFUDeviceManagerConfig.java:43-48`. Other vendors' MiBeacon broadcasts are dropped
-  (`ICDeviceManager.java:2439-2455` returns null when `getMIDeviceByProductId` misses).
 - Device logs are **not** in logcat. `AFULoggerHandler` writes to
   `getFilesDir()/afu/afublesdklogcache`, `ICLoggerHandler` to
   `/icomon/ + /dmlogs + /cache` — both private. Only
   `com/afu/wearable/sdk/logging/AfuFirmwareFrameLogger.java` uses `android.util.Log`.
 - `run-as` fails: `package not debuggable`. The external data dir holds only multimedia caches.
 
-## Don't confuse it with a Xiaomi scale
+## Device identification
 
-A nearby **Mijia Scale S400** advertises MiBeacon `FE95` with
-`sdata = 10 59 d9 30 <counter> <mac>`, i.e. frame control `0x5910`, product `0x30D9` (12505),
-**no object field**, and a counter that barely moves. It has zero `[Packages]` entries in the
-Bluetooth device cache and never pairs. It is not the target device, and the MiBeacon bindkey
-route (ESPHome `xiaomi_body_scale`, HA `xiaomi_ble`) is a dead end for this scale.
-
-Useful check: the icomon scan drops anything whose name does not start with `AFU-WL`, so a
-mismatch between "a scale is right next to me" and "no scale is discovered" is almost always
-the wrong physical device, not a bug.
+The icomon scan drops anything whose name does not start with `AFU-WL`
+(`ICBleHandler.java:1702`). Discoverability is decided by the advertised name plus
+service `0000FFB0` with `FFB1` write / `FFB2` notify.
 
 ## Recovering app data from the phone
 

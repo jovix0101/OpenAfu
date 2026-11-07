@@ -7,7 +7,7 @@ import CoreBluetooth
 //  1. passive scan, log EVERY advertisement (allowDuplicates) so short weigh-in
 //     bursts are not lost;
 //  2. flag candidates that look like an AFU scale:
-//       - service data under 0xFC50            (AFU native protocol, k6.a parser)
+//       - candidate service data under 0xFC50
 //       - FE95 service data whose product id == 0x391F (14623, the ONLY product id
 //         registered in AFUDeviceManagerConfig / ICDeviceManagerConfig)
 //       - any local name containing afu / scale / 体脂 / 秤
@@ -69,7 +69,7 @@ final class Probe: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             if m.state == .unauthorized { exit(2) }
             return
         }
-        emit("# afuprobe: scan \(Int(seconds))s, scanOnly=\(scanOnly), watching FC50 / FE95 product 0x391F / scale names")
+        emit("# afuprobe: scan \(Int(seconds))s, scanOnly=\(scanOnly), watching AFU-WL / candidate service data / scale names")
         m.scanForPeripherals(withServices: nil,
                              options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {

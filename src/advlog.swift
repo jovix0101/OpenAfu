@@ -3,7 +3,7 @@ import CoreBluetooth
 
 // advlog: pure advertisement logger. Never connects. Logs EVERY advertisement of
 // the target device (duplicates allowed) with a millisecond timestamp, so short
-// measurement bursts (e.g. a MiBeacon weight frame) are not missed.
+// measurement bursts are not missed.
 //
 // usage: advlog <name-substring|all> <seconds>
 // env: BLE_OUT (default /tmp/advlog.out)
@@ -19,7 +19,7 @@ func emit(_ s: String) {
 }
 func hex(_ d: Data) -> String { d.map { String(format: "%02x", $0) }.joined(separator: " ") }
 
-let target = (CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "mijia").lowercased()
+let target = (CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "afu-wl").lowercased()
 let seconds = CommandLine.arguments.count > 2 ? (Double(CommandLine.arguments[2]) ?? 300) : 300
 
 final class L: NSObject, CBCentralManagerDelegate {

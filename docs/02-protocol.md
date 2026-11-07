@@ -164,7 +164,7 @@ kind==2 → remainingHistoryCount = b[?]，随后 N×adc
 末尾    → alg_type、unit
 ```
 
-**必须回 ACK**，否则秤会每 1.5 秒把同一条记录重发一次（我们曾经因此误以为有十几条离线记录）。ACK 见 §7。收到历史帧后 App 侧还有一层去重：`ICWeightScale27Worker.java:605-616` 里 `if (time == _nLastHistoryTime) { log "filter history data with same time:%d"; return; }`。
+**必须回 ACK**，否则秤会每 1.5 秒把同一条记录重发一次。ACK 见 §7。收到历史帧后 App 侧还有一层去重：`ICWeightScale27Worker.java:605-616` 里 `if (time == _nLastHistoryTime) { log "filter history data with same time:%d"; return; }`。
 
 ## 7. 主机写出去的三种帧
 

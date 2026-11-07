@@ -6,7 +6,7 @@
 2. 能不能绕过 App，把秤的数据直接接到电脑上？
 3. 拿到之后能做点什么有意思的？
 
-三个都有答案：**走 BLE（不是 Wi-Fi、不是米家）→ 能，复刻 App 的连接会话即可 → 做成菜单栏常驻面板（ScaleBar）**。
+三个都有答案：**走 BLE → 能，复刻 App 的连接会话即可 → 做成菜单栏常驻面板（ScaleBar）**。
 
 ## 数据链路
 
@@ -34,21 +34,17 @@
    └─ 客户端算法类是空壳：体脂公式根本不在 APK 里
 ```
 
-**关键点**：广播里没有体重。想拿数据必须建立连接、写时间帧、订阅通知。这也是为什么"只监听广播"的方案折腾了很久一无所获。
+**关键点**：广播里没有体重。取数必须建立连接、写时间帧、订阅 `FFB2` 通知。
 
-## 三条被排除的错误路径
+## 协议栈定位
 
-| 假设 | 为什么错 | 证据 |
-| --- | --- | --- |
-| 这是小米生态链秤，走 MiBeacon / FE95，需要 bindkey 解密 | 用户确认从没绑过米家，秤是阿里 × 沃莱联名。曾在同一环境里扫到另一台 `Mijia Scale S400` 的 FE95 广播（`10 59 d9 30 ...`，productId `0x30D9`），是**别人的秤**，与本任务无关 | 广播里没有 `0xFC50` 或阿福登记的 productId；手机蓝牙栈里该小米设备从未被任何 App 连接 |
-| 走阿福自研的 `0000FC50` 服务 / AFU 短帧长帧协议 | APK 里确实有这套自研栈（`AFUWeightScaleShortFrameWorker` / `LongFrameWorker`，特征值 `af000002`～`af000006`），但它服务的是另一类 AFU 设备；这台联名秤由 icomon SDK 接管 | `ICBleHandler.java:1702` 只放行 `AFU-WL*` 名字，走 `0000FFB0`；FC50 的 service data 从未在本秤广播里出现 |
-| 体重秤的数据在广播里，或 App 把数据写进手机本地数据库 / Health Connect | 广播 7 字节里只有协议标识；App 的外部数据目录里没有任何 `.db` / `.sqlite` / `.json`；手机未 root，`run-as` 报 `package not debuggable`，私有目录读不到 | `adb shell` 目录遍历、`dumpsys` provider 列举、bugreport 检索 |
-
-**教训**：环境里同时能扫到好几台秤，先按「广播名 + 服务 UUID + 用户说的品牌」三要素锁定目标，再动手逆向，否则会围着别人的设备转一整晚。
+- 这台秤由 APK 里的 `cn.icomon.icdevicemanager` 接管：服务 `0000FFB0`、特征值 `FFB1` / `FFB2`，`deviceSubType = 7` → `ICWeightScale27Worker`（27 协议）。
+- 同一个 APK 里还有阿福自研的 `0000FC50` 短帧 / 长帧栈（`AFUWeightScaleShortFrameWorker` / `LongFrameWorker`），服务于另一类设备，不在本秤链路上。
+- 广播只有名字、服务 UUID 和 7 字节协议标识；体重与阻抗只从连接后的 `FFB2` 通知里读。
 
 ## 关键发现清单
 
-- **不是小米、不是配对、不是 Wi-Fi**：BLE 明文连接，App 后台自动连，用户看不到"配对"这一步。
+- **BLE 明文连接**：不配对，App 在后台自动连，用户看不到连接这一步。
 - **两层 SDK 并存**：`cn.icomon.icdevicemanager`（沃莱/伊康，管这台秤）与 `com.afu.afudevicemanager` + `aijk_hardware_sdk`（阿福自研 FC50 栈）；两者都打进同一个 APK。
 - **Worker 路由**：广播里的 `deviceSubType` 决定用哪个 Worker；`7 / 9 / 10 → ICWeightScale27Worker`，`8 / 11 / 12 → ICWeightScaleV3Worker`。这台是 7。
 - **20 字节定长帧**，校验和是 `sum(b[2..18])` 的低 5 位；客户端写出去的帧用全 8 位也能过（256 是 32 的倍数）。
