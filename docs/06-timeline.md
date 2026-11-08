@@ -39,7 +39,7 @@
 
 ## 产品化（当前状态）
 
-- 独立 SwiftPM 仓库 `jovix0101/scalebar`：`ScaleBarCore` 纯逻辑 + `ScaleBar` AppKit + 单元测试 + `build.sh` + GitHub Actions 出 universal dmg。
+- 独立 SwiftPM 仓库 `jovix0101/ScaleBar`：`ScaleBarCore` 纯逻辑 + `ScaleBar` AppKit + 单元测试 + `build.sh` + GitHub Actions 出 universal dmg。
 - 菜单栏面板：14 项本地算出的指标、体重与体脂趋势图、体成分条、1 周～全部的时间区间、称重记录删除、CSV / JSON 导出、合成数据截图与应用图标。
 - 数据存进应用自管的 SQLite，三张表：`measurements` / `frames` / `settings`。
 

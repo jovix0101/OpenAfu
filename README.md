@@ -2,7 +2,7 @@
 
 「蚂蚁阿福 × 沃莱科技」联名体脂秤（货号 A1 / 型号 FG2508WB）的协议调研档案：广播、GATT、数据帧、写入帧、体成分模型和探测工具。
 
-产品化实现在 [`jovix0101/scalebar`](https://github.com/jovix0101/scalebar)。
+产品化实现在独立仓库 `jovix0101/ScaleBar`（私有）。
 
 ## 结论
 

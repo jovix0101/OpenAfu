@@ -101,7 +101,7 @@ A 10 s connect timeout with retry is normal and expected.
 ## Menu-bar app (ScaleBar)
 
 The same protocol wrapped in a persistent status-bar app. It now lives in its own
-SwiftPM repo (`~/Workspaces/scalebar`: `ScaleBarCore` + `ScaleBar`, `./build.sh` →
+SwiftPM repo (`~/Workspaces/ScaleBar`: `ScaleBarCore` + `ScaleBar`, `./build.sh` →
 `.app` + `.dmg`, CI on every push); the original scratch single file
 - **Idle = passive scan only.** It listens for `AFU-WL*` advertisements and never
   connects, so the phone app keeps working.

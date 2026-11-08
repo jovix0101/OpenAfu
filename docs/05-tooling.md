@@ -60,7 +60,7 @@ open -n ./BLEBridge.app --args 30                  # 必须用 open 启动，不
 
 `open` 启动的进程**stdout 会被丢弃**，所以工具一律把日志写到文件（环境变量 `BLE_OUT`，默认 `/tmp/xxx.out`），再 `tail -f` 看。
 
-**结论**：Info.plist 里两个 usage string 齐全、bundle 结构完整、ad-hoc 签名，再用 `open -n` 启动，CoreBluetooth 回调才会正常触发（`dev.scalebar.app` 就是这么工作的）。
+**结论**：Info.plist 里两个 usage string 齐全、bundle 结构完整、ad-hoc 签名，再用 `open -n` 启动，CoreBluetooth 回调才会正常触发（`com.github.jovix0101.ScaleBar` 就是这么工作的）。
 
 ### 2.3 Swift delegate 的静默坑
 

@@ -102,6 +102,6 @@ TDEE    = BMR × 1.2 = 1976 kcal（久坐）
 | 实现 | 位置 |
 | --- | --- |
 | 参考 CLI 的 `bodyComp()` | `src/afuscale.swift` |
-| 产品化实现 | `jovix0101/scalebar` → `Sources/ScaleBarCore/Metrics.swift` 的 `compute(_ weight:_ z1:_ z2:_ p:targetFat:)` |
+| 产品化实现 | `jovix0101/ScaleBar` → `Sources/ScaleBarCore/Metrics.swift` 的 `compute(_ weight:_ z1:_ z2:_ p:targetFat:)` |
 | 单位换算（避免分度值误差） | 同仓库 `Sources/ScaleBarCore/Units.swift` 的 `gramsToKg(_:division:)` |
 | 单元测试 | `Tests/ScaleBarCoreTests/`：`testWorkedExample`、`testTighterImpedanceMeansMoreFat`、`testRejectsNonsense`、`testTargetWeightKeepsFatFreeMass` 等 |
